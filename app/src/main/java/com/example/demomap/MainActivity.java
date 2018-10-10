@@ -47,9 +47,10 @@ import java.util.List;
  * An activity that displays a map showing the place at the device's current location.
  */
 public class MainActivity extends AppCompatActivity
-        implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleMap.OnMarkerDragListener {
+        implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleMap.OnMarkerDragListener
+        ,GoogleMap.OnMapClickListener , GoogleMap.OnMyLocationClickListener, GoogleMap.OnMyLocationButtonClickListener {
 
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = "MAIN";
     private GoogleMap mMap;
     private CameraPosition mCameraPosition;
 
@@ -166,6 +167,10 @@ public class MainActivity extends AppCompatActivity
     public void onMapReady(GoogleMap map) {
         mMap = map;
 
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setCompassEnabled(true);
+        mMap.getUiSettings().setIndoorLevelPickerEnabled(true);
+
         // Add some markers to the map, and add a data object to each marker.
         mPerth = mMap.addMarker(new MarkerOptions()
                 .position(PERTH)
@@ -185,33 +190,37 @@ public class MainActivity extends AppCompatActivity
 
         // Set a listener for marker click.
         mMap.setOnMarkerClickListener(this);
+        mMap.setOnMarkerDragListener(this);
+        mMap.setOnMapClickListener(this);
+        mMap.setOnMyLocationClickListener(this);
+        mMap.setOnMyLocationButtonClickListener(this);
 
 
-        // Use a custom info window adapter to handle multiple lines of text in the
-        // info window contents.
-//        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
-//
-//            @Override
-//            // Return null here, so that getInfoContents() is called next.
-//            public View getInfoWindow(Marker arg0) {
-//                return null;
-//            }
-//
-//            @Override
-//            public View getInfoContents(Marker marker) {
-//                // Inflate the layouts for the info window, title and snippet.
-//                View infoWindow = getLayoutInflater().inflate(R.layout.custom_info_contents,
-//                        (FrameLayout) findViewById(R.id.map), false);
-//
-//                TextView title = ((TextView) infoWindow.findViewById(R.id.title));
-//                title.setText(marker.getTitle());
-//
-//                TextView snippet = ((TextView) infoWindow.findViewById(R.id.snippet));
-//                snippet.setText(marker.getSnippet());
-//
-//                return infoWindow;
-//            }
-//        });
+//         Use a custom info window adapter to handle multiple lines of text in the
+//         info window contents.
+        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+
+            @Override
+            // Return null here, so that getInfoContents() is called next.
+            public View getInfoWindow(Marker arg0) {
+                return null;
+            }
+
+            @Override
+            public View getInfoContents(Marker marker) {
+                // Inflate the layouts for the info window, title and snippet.
+                View infoWindow = getLayoutInflater().inflate(R.layout.custom_info_contents,
+                        (FrameLayout) findViewById(R.id.map), false);
+
+                TextView title = ((TextView) infoWindow.findViewById(R.id.title));
+                title.setText(marker.getTitle());
+
+                TextView snippet = ((TextView) infoWindow.findViewById(R.id.snippet));
+                snippet.setText(marker.getSnippet());
+
+                return infoWindow;
+            }
+        });
 
         // Prompt the user for permission.
         getLocationPermission();
@@ -468,18 +477,34 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onMarkerDragStart(Marker marker) {
         //mTopText.setText("onMarkerDragStart");
-        Toast.makeText(this,"onMarkerDragStart",Toast.LENGTH_SHORT).show();
+        Log.d(TAG,"onMarkerDragStart");
     }
 
     @Override
     public void onMarkerDragEnd(Marker marker) {
         //mTopText.setText("onMarkerDragEnd");
-        Toast.makeText(this,"onMarkerDragEnd",Toast.LENGTH_SHORT).show();
+        Log.d(TAG,"onMarkerDragEnd");
     }
 
     @Override
     public void onMarkerDrag(Marker marker) {
         //mTopText.setText("onMarkerDrag.  Current Position: " + marker.getPosition());
-        Toast.makeText(this,"onMarkerDrag.  Current Position: " + marker.getPosition(),Toast.LENGTH_SHORT).show();
+        Log.d(TAG,"onMarkerDrag.  Current Position: " + marker.getPosition());
+    }
+
+    @Override
+    public void onMapClick(LatLng latLng) {
+        Toast.makeText(this,"lat = "+latLng.latitude+" long = "+latLng.longitude,Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onMyLocationClick(@NonNull Location location) {
+        Toast.makeText(this, "Current location:\n" + location, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public boolean onMyLocationButtonClick() {
+        Toast.makeText(this, "MyLocation button clicked", Toast.LENGTH_SHORT).show();
+        return false;
     }
 }
